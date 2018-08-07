@@ -1,0 +1,80 @@
+---
+title: "Howo 2"
+author: "smith arthur q"
+date: "June 24, 2018"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r read-csv}
+#set.seed(2)
+ks = read.csv("ks16.CSV",header=TRUE,stringsAsFactors = FALSE)
+#datinp = read.table("Rdata.csv", header=TRUE, stringAsFactors=FALSE, as.is = !stringsAsFactors , sep=",")
+#
+#
+# first cleanup - numeric data getting converted to factors!! Bad...#
+#
+#
+ks$goal = as.numeric(ks$goal)
+ks$pledged = as.numeric(ks$pledged)
+ks$backers = as.numeric(ks$backers)   # numeric or character best serve our needs?
+ks$usd.pledged = as.numeric(ks$usd.pledged)
+ks$deadline = as.Date(ks$deadline)
+ks$launched = as.Date(ks$launched)
+
+#datinp$b = as.numeric(datinp$b)
+#datinp$ctr = with(datinp, as.integer(a/b) )
+
+#summary(pr)  # any weird mean, median?  Data integer, character?  Maybe an outlier?  
+#plot(pr$x5)  # visual for outliers?
+#cor(pr)  # correlation issues?
+#print(pr[100:200,])
+
+```
+```{r examine-the-data}
+#set.seed(2)
+ks2 = read.csv("ks16.CSV",header=TRUE,stringsAsFactors = FALSE)
+tech2 = ks2[ks2$category == 'Technology',]
+techNoID2 = tech2[,-(1:5)] # cut id name cat mcat currency  
+ct2 = techNoID2[,-(9:12)] # cut empty columns x, x1, x2, x3 
+#head(ct2)
+#summary(ct2)
+
+```
+
+```{r binning}
+#...........................
+#
+# does binning make sense?  
+# backers 0, 1 to 10, 11 to 100, more than 100...
+# 
+justBackers = ct2$backers 
+  
+breaks = c(0,1,10,100,25000)
+cuts = cut(as.numeric(justBackers),breaks)
+table(cuts)
+
+```
+
+```{r tree}
+#..................................
+#
+# does a tree make sense to split things into big failure, medium failure, iffy failure
+#
+library(tree)
+tree.k=tree(ct2$state ~ as.factor(ct2$backers),data=ct2)
+tree
+summary(tree.k)
+tree.k$size
+tree.k$k
+
+```
+
+
+
+
